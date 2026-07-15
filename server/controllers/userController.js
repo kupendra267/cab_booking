@@ -5,6 +5,13 @@ exports.registerUser = async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
 
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all fields",
+      });
+    }
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -25,13 +32,16 @@ exports.registerUser = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully",
-      user,
+      message: "User Registered Successfully",
+      data: user,
     });
   } catch (error) {
+    console.error("Register Error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server Error",
+      error: error.message,
     });
   }
 };
@@ -41,24 +51,41 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email, password });
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter email and password",
+      });
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.password !== password) {
       return res.status(401).json({
         success: false,
-        message: "Invalid Email or Password",
+        message: "Invalid Password",
       });
     }
 
     res.status(200).json({
       success: true,
       message: "Login Successful",
-      user,
+      data: user,
     });
   } catch (error) {
+    console.error("Login Error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server Error",
+      error: error.message,
     });
   }
 };
@@ -70,12 +97,70 @@ exports.getAllUsers = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      users,
+      count: users.length,
+      data: users,
     });
   } catch (error) {
+    console.error("Get Users Error:", error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+// Get User By ID
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.error("Get User Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+// Delete User
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User Deleted Successfully",
+    });
+  } catch (error) {
+    console.error("Delete User Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
     });
   }
 };
