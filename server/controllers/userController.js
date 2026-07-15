@@ -73,12 +73,18 @@ exports.loginUser = async (req, res) => {
         message: "Invalid Password",
       });
     }
-
     res.status(200).json({
       success: true,
       message: "Login Successful",
-      data: user,
-    });
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+  },
+});
+
+
   } catch (error) {
     console.error("Login Error:", error);
 
@@ -161,6 +167,26 @@ exports.deleteUser = async (req, res) => {
       success: false,
       message: "Server Error",
       error: error.message,
+    });
+  }
+};
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Profile Updated Successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };

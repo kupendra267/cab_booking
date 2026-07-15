@@ -7,6 +7,7 @@ const {
   getBookingById,
   updateBookingStatus,
   deleteBooking,
+  getUserBookings,
 } = require("../controllers/bookingController");
 
 // Create Booking
@@ -23,5 +24,7 @@ router.put("/:id", updateBookingStatus);
 
 // Delete Booking
 router.delete("/:id", deleteBooking);
+
+router.get("/user/:id", getUserBookings);
 
 module.exports = router;

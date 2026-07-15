@@ -115,3 +115,20 @@ exports.deleteBooking = async (req, res) => {
     });
   }
 };
+exports.getUserBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find({
+      user: req.params.id,
+    }).populate("car");
+
+    res.json({
+      success: true,
+      bookings,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
